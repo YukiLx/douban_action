@@ -11,6 +11,9 @@ on:
         type: boolean
         required: true
         default: true
+# 解决方案
+permissions:
+  contents: write
 
 jobs:
   douban:
