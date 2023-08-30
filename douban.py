@@ -18,20 +18,25 @@ csv_movie_path= ''
 # csv_book_path = './data/douban/book.csv'
 csv_book_path= ''
 
-def dowoloadFile(image_url):
+def dowoloadFile(image_url,movie_name,year):
   # 确保文件夹路径存在
   os.makedirs(save_folder, exist_ok=True)
   if image_url.startswith("https://") and "koobai.com" in image_url:
     # 请求头
     headers = {
     'Referer': 'https://koobai.com'
-    } 
+    }
+    print("使用koobai请求头")
   else:
     headers = {
     'Referer': 'https://doubanio.com'
     }
+    print("使用doubanio请求头")
+
   response = requests.get(image_url, headers=headers, timeout=30)
-  file_name = image_url.split('/')[-1]
+  # file_name = image_url.split('/')[-1] # 使用豆瓣编号作为海报名字
+  # file_name = image_url.split('/')[-1]+"_"+movie_name # 使用豆瓣编号+电影名字作为海报名字
+  file_name = year+'_'+movie_name+'_'+image_url.split('/')[-1] # 使用年份+电影名字+豆瓣电影编号作为海报的名字
   save_path = os.path.join(save_folder, file_name)
   if os.path.exists(save_path):
     print(f'文件已存在 {file_name}')
@@ -46,10 +51,14 @@ if(json_file_path):
   print('我是Movies Json文件，开始执行。。。。。')
   with open(json_file_path, 'r', encoding='utf-8') as file:
     data_json = json.load(file)
+
+  # print("type(data_json)=",type(data_json))
   # 提取URL字段的值
   for i in data_json:
-    image_url = i['subject']['cover_url']
-    dowoloadFile(image_url)
+    image_url = i['subject']['cover_url'] # 从json数据中获取封面图片的url地址
+    movie_name = i['subject']['title'] # 从json数据中获取豆瓣电影的名字
+    year = i['subject']['year'] # 从json数据中获取电影上映年份
+    dowoloadFile(image_url,movie_name,year)
 elif(csv_movie_path):
   print('我是Movies CSV文件，开始执行。。。。。')
   data_csv = []  # 存储数据的列表
